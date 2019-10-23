@@ -18,6 +18,13 @@
     <script type="module">
       const xlsx = window.XLSX;
 
+      async function writeFile(fileHandle, fileContents) {
+        const writer = await fileHandle.createWriter();
+        await writer.truncate(0);
+        await writer.write(0, fileContents);
+        await writer.close();
+      }
+
       if ("chooseFileSystemEntries" in window) {
         const btn = document.querySelector("#openFile");
         btn.addEventListener("click", async () => {
@@ -29,7 +36,13 @@
           const sheetAsJson = xlsx.utils.sheet_to_json(
             workbook.Sheets[secondSheet]
           );
-          console.log(sheetAsJson);
+          sheetAsJson[0]["Issuer Name"] = `Tyler's Pizza Parlor`;
+
+          const backToSheet = xlsx.utils.json_to_sheet(sheetAsJson);
+          workbook.Sheets[secondSheet] = backToSheet;
+          const backToBuffer = xlsx.write(workbook, { type: "buffer" });
+          console.log(backToBuffer);
+          // writeFile(fileHandle, backToBuffer);
         });
       }
     </script>
