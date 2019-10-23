@@ -13,8 +13,25 @@
   </style>
   <body>
     <h1>Testing Native Filesystem API</h1>
+    <button id="openFile">Open File</button>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script type="module">
-      console.log("Hello World!");
+      const xlsx = window.XLSX;
+
+      if ("chooseFileSystemEntries" in window) {
+        const btn = document.querySelector("#openFile");
+        btn.addEventListener("click", async () => {
+          const fileHandle = await window.chooseFileSystemEntries();
+          const file = await fileHandle.getFile();
+          const buffer = await file.arrayBuffer();
+          const workbook = xlsx.read(buffer, { type: "buffer" });
+          const secondSheet = workbook.SheetNames[1];
+          const sheetAsJson = xlsx.utils.sheet_to_json(
+            workbook.Sheets[secondSheet]
+          );
+          console.log(sheetAsJson);
+        });
+      }
     </script>
   </body>
 </html>
